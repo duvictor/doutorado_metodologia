@@ -1,0 +1,3 @@
+Gerar um rede em 2d com saidas: 3, 4, 5, 6, 7, 8
+fazer a transformação correta para nifti
+fazer segmentação no 3d slice e comparar com a saída da rede
