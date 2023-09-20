@@ -6,3 +6,15 @@ torchvision~=0.13.0
 pydicom~=2.3.0
 tqdm~=4.64.0
 matplotlib
+plotly
+jupyter
+cufflinks
+lightgbm
+scikit-learn
+joblib
+optuna
+nibabel
+pylibjpeg
+pylibjpeg-libjpeg
+torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu117
+kaleido==0.1.0post1

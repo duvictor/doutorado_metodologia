@@ -17,7 +17,7 @@ import numpy as np
 import torch.nn.init
 import matplotlib.pyplot as plt
 import scipy.ndimage
-from skimage import measure
+# from skimage import measure
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 import nibabel as nb
 from dicom_to_nifti import converter
@@ -40,159 +40,11 @@ parser.add_argument('--similar', metavar='sim', default=1, type=float, help='med
 parser.add_argument('--visualize', metavar='1 or 0', default=1, type=int, help='visualization flag')
 # parser.add_argument('--input', metavar='FILENAME', default=r'D:\Users\paulo\PycharmProjects\pytorch-unsupervised-segmentation-tip\imagens\3.png', help='input image file name', required=False)
 parser.add_argument('--input', metavar='FILENAME',
-                    default=r'E:\PycharmProjects\pythonProject\imagens\Dsc32909.jpg',
+                    default=r'C:\Users\paulo\PycharmProjects\doutorado_metodologia\imagens\Dsc32909.jpg',
                     help='input image file name', required=False)
 parser.add_argument('--stepsize_sim', metavar='SIM', default=1, type=float, help='step size for similarity loss - regularizacao', required=False)
 
 args = parser.parse_args()
-
-# E:\PycharmProjects\pythonProject\imagens\Dsc32907+.jpg
-# E:\PycharmProjects\pythonProject\imagens\Dsc32909.jpg
-
-
-
-
-# def get_pixels_hu_2(scans):
-#     image = np.stack([s.pixel_array for s in scans])
-#     # Convert to int16 (from sometimes int16),
-#     # should be possible as values should always be low enough (<32k)
-#     image = image.astype(np.int16)
-#
-#     # Set outside-of-scan pixels to 0
-#     # The intercept is usually -1024, so air is approximately 0
-#     # image[image == -2000] = 0
-#
-#     # Convert to Hounsfield units (HU)
-#     intercept = scans[0].RescaleIntercept
-#     slope = scans[0].RescaleSlope
-#
-#     if slope != 1:
-#         image = slope * image.astype(np.float64)
-#         image = image.astype(np.int16)
-#
-#     image += np.int16(intercept)
-#
-#     return np.array(image, dtype=np.int16)
-#
-#
-# def get_pixels_hu(slices):
-#     image = np.stack([s.pixel_array for s in slices])
-#     # Convert to int16 (from sometimes int16),
-#     # should be possible as values should always be low enough (<32k)
-#     image = image.astype(np.int16)
-#
-#     # Set outside-of-scan pixels to 0
-#     # The intercept is usually -1024, so air is approximately 0
-#     # realiza o filtro de ar
-#     # Ar	−1000
-#     # Pulmão	−500
-#     # Gordura	−100 a −50
-#     # Água	0
-#     # Fluido cerebroespinhal	15
-#     # Rim	30
-#     # Sangue	+30 a +45
-#     # Músculo	+10 a +40
-#     # Massa cinzenta	+37 a +45
-#     # Massa branca	+20 a +30
-#     # Fígado	+40 a +60
-#     # Tecidos moles, Contraste	+100 a +300
-#     # Osso	+700 (osso esponjoso) a +3000 (osso denso)
-#     # image[image <= -2000] = 0
-#     image_original = image
-#     plt.imshow(image_original[0, :, ])
-#     plt.show()
-#
-#     intercept = slices[0].RescaleIntercept
-#     slope = slices[0].RescaleSlope
-#
-#     # Convert to Hounsfield units (HU)
-#     for slice_number in range(len(slices)):
-#
-#
-#
-#         if slope != 1:
-#             image_original[slice_number] = slope * image_original[slice_number].astype(np.float64)
-#             image_original[slice_number] = image_original[slice_number].astype(np.int16)
-#
-#         image_original[slice_number] += np.int16(intercept)
-#
-#     return np.array(image_original, dtype=np.int16)
-#
-#
-# def resample3d(image):
-#     # Determine current pixel spacing
-#     # Set the desired depth
-#     desired_depth = 64
-#     desired_width = 128
-#     desired_height = 128
-#
-#     # Get current depth
-#
-#     current_depth = image.shape[0]
-#     current_width = image.shape[1]
-#     current_height = image.shape[2]
-#
-#     # Compute depth factor
-#     depth = current_depth / desired_depth
-#     width = current_width / desired_width
-#     height = current_height / desired_height
-#     depth_factor = 1 / depth
-#     width_factor = 1 / width
-#     height_factor = 1 / height
-#
-#     image = scipy.ndimage.interpolation.zoom(image, (depth_factor, width_factor, height_factor), order=1)
-#     image = np.transpose(image)
-#     return image
-#
-
-# def read_dicom_file(filepath):
-#     slices = [pydicom.read_file(filepath + '/' + s) for s in os.listdir(filepath)]
-#     slices.sort(key=lambda x: int(x.InstanceNumber))
-#     try:
-#         slice_thickness = np.abs(slices[0].ImagePositionPatient[2] - slices[1].ImagePositionPatient[2])
-#     except:
-#         slice_thickness = np.abs(slices[0].SliceLocation - slices[1].SliceLocation)
-#
-#     for s in slices:
-#         s.SliceThickness = slice_thickness
-#     # patient1_hu_scans = get_pixels_hu_2(slices)
-#
-#     vol, pixdim, mat  = get_pixels_from_dicom(slices)
-#     # patient1_hu_scans = slices
-#     # images = resample3d(patient1_hu_scans)
-#     #plot_3d(images)
-#     # return images
-#
-#     return vol, pixdim, mat
-
-
-# def plot_3d(image, threshold=-300):
-# #     # Position the scan upright,
-# #     # so the head of the patient would be at the top facing the camera
-# #     p = image.transpose(2, 1, 0)
-# #     p = p[:, :, ::-1]
-# #
-# #     verts, faces = measure.marching_cubes(p, threshold)
-# #
-# #     fig = plt.figure(figsize=(10, 10))
-# #     ax = fig.add_subplot(111, projection='3d')
-# #
-# #     # Fancy indexing: `verts[faces]` to generate a collection of triangles
-# #     mesh = Poly3DCollection(verts[faces], alpha=0.1)
-# #     face_color = [0.5, 0.5, 1]
-# #     mesh.set_facecolor(face_color)
-# #     ax.add_collection3d(mesh)
-# #
-# #     ax.set_xlim(0, p.shape[0])
-# #     ax.set_ylim(0, p.shape[1])
-# #     ax.set_zlim(0, p.shape[2])
-# #
-# #     plt.show()
-
-
-
-
-
 
 
 
@@ -204,21 +56,9 @@ def plotarHistograma(exame):
     plt.show()
 
 # folder_dcm = r"E:\PycharmProjects\pythonProject\exame\CQ500CT257\Unknown Study\CT 0.625mm"
-folder_dcm = r"D:\dataset_cq500\CQ500CT47 CQ500CT47\Unknown Study\CT PRE CONTRAST THIN"
-nifti_file = r"E:\PycharmProjects\pythonProject\build\CQ500CT47.nii.gz"
+folder_dcm = r"C:\Users\paulo\OneDrive\Desktop\dataset_cq500\CQ500CT47 CQ500CT47\Unknown Study\CT PRE CONTRAST THIN"
+nifti_file = r"C:\Users\paulo\PycharmProjects\doutorado_metodologia\build\CQ500CT47.nii.gz"
 
-# folder_dcm = r"D:\dataset\rsna-miccai-brain-tumor-radiogenomic-classification\train\00002\T2w"
-# nifti_file = r"E:\PycharmProjects\pythonProject\build\rsna_miccai_T2w_00002.nii.gz"
-
-# files_dcm = [os.path.join(os.getcwd(), folder_dcm, x) for x in os.listdir(folder_dcm)]
-# exame = np.array([read_dicom_file(path) for path in files_dcm])
-
-# vol, pixdim, mat  = read_dicom_file(folder_dcm)
-
-# convert DICOM coords to NIFTI coords (in-place)
-
-# window_center = 40
-# window_width = 80
 
 
 window_center = 40
@@ -487,13 +327,13 @@ for batch_idx in range(args.maxIter):
 
 # INICIO VALIDAÇÃO
 exames_validar = {
-"CQ500CT42": r"D:\dataset_cq500\CQ500CT42 CQ500CT42\Unknown Study\CT PRE CONTRAST THIN",
-"CQ500CT195": r"D:\dataset_cq500\CQ500CT195 CQ500CT195\Unknown Study\CT PRE CONTRAST THIN",
-"CQ500CT200": r"D:\dataset_cq500\CQ500CT200 CQ500CT200\Unknown Study\CT Thin Plain",
-"CQ500CT299": r"D:\dataset_cq500\CQ500CT299 CQ500CT299\Unknown Study\CT Thin Plain",
-"CQ500CT418": r"D:\dataset_cq500\CQ500CT418 CQ500CT418\Unknown Study\CT Thin Plain",
-"CQ500CT422": r"D:\dataset_cq500\CQ500CT422 CQ500CT422\Unknown Study\CT PLAIN THIN",
-"CQ500CT440": r"D:\dataset_cq500\CQ500CT440 CQ500CT440\Unknown Study\CT Thin Plain",
+"CQ500CT42": r"C:\Users\paulo\OneDrive\Desktop\dataset_cq500\CQ500CT42 CQ500CT42\Unknown Study\CT PRE CONTRAST THIN",
+"CQ500CT195": r"C:\Users\paulo\OneDrive\Desktop\dataset_cq500\CQ500CT195 CQ500CT195\Unknown Study\CT PRE CONTRAST THIN",
+"CQ500CT200": r"C:\Users\paulo\OneDrive\Desktop\dataset_cq500\CQ500CT200 CQ500CT200\Unknown Study\CT Thin Plain",
+"CQ500CT299": r"C:\Users\paulo\OneDrive\Desktop\dataset_cq500\CQ500CT299 CQ500CT299\Unknown Study\CT Thin Plain",
+"CQ500CT418": r"C:\Users\paulo\OneDrive\Desktop\dataset_cq500\CQ500CT418 CQ500CT418\Unknown Study\CT Thin Plain",
+"CQ500CT422": r"C:\Users\paulo\OneDrive\Desktop\dataset_cq500\CQ500CT422 CQ500CT422\Unknown Study\CT PLAIN THIN",
+"CQ500CT440": r"C:\Users\paulo\OneDrive\Desktop\dataset_cq500\CQ500CT440 CQ500CT440\Unknown Study\CT Thin Plain",
 }
 
 
